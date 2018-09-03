@@ -1,1 +1,5 @@
+export { default as BottomNavBar } from './bottomNavBar'
+export { default as BottomNavBarItem } from './bottomNavBarItem'
 export { default as Button } from './button'
+export { default as Dialog } from './dialog'
+export { default as Header } from './header'

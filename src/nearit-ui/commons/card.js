@@ -1,0 +1,25 @@
+/**
+ * Copyright (c) 2017
+ *
+ * @author Mattia Panzeri <mattia.panzeri93@gmail.com>
+ * 
+ */
+
+import React from 'react'
+import { StyleSheet, View } from 'react-native'
+
+export const Card = ({ children }) => (
+  <View style={styles.card}>{children}</View>
+)
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#FFF',
+    flexDirection: 'column',
+    width: 300,
+    padding: 25,
+    borderRadius: 5,
+    justifyContent: 'center',
+    alignItems: 'center'
+  }
+})

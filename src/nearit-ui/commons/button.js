@@ -15,7 +15,13 @@ import {
   View
 } from 'react-native'
 
-export default ({ accessibilityLabel, label, labelColor, onPress, style }) => (
+export const Button = ({
+  accessibilityLabel,
+  label,
+  labelColor,
+  onPress,
+  style
+}) => (
   <TouchableWithoutFeedback
     accessibilityLabel={accessibilityLabel}
     accessibilityComponentType="button"
