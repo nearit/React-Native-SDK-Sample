@@ -1,122 +1,111 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * Copyright (c) 2017
  *
+ * @author Mattia Panzeri <mattia.panzeri93@gmail.com>
+ * @author Federico Boschini <federico@nearit.com>
+ * 
  * @format
  * @flow
  */
 
-import React, {Component} from 'react';
-import {Platform, StyleSheet, Text, View} from 'react-native';
+import React, { Component } from 'react'
+import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import NearIT, { NearITPermissions, NearItConstants } from 'react-native-nearit'
 
-import { Button } from "./components";
+import { BottomNavBar, BottomNavBarItem, Dialog, Header } from './components'
+import { Home, User, Feedback } from './pages'
+
+import successIcon from './assets/confirm.png'
+import errorIcon from './assets/error.png'
+import homeIcon from './assets/icon-nearit.png'
+import userIcon from './assets/who.png'
+import alertsIcon from './assets/icon-alert.png'
+import simpleNotificationIcon from './assets/icona-notifica.png'
+import contentNotificationIcon from './assets/icona-notificaecontenuto.png'
+import couponNotificationIcon from './assets/icona-couponsconto.png'
+import feedbackNotificationIcon from './assets/icona-questionario.png'
+import customJsonNotificationIcon from './assets/icon-code.png'
+
+import { FeedbackModal } from './nearit-ui/feedback'
 
 const { Events, EventContent, Permissions, Statuses } = NearItConstants
-
-const instructions = Platform.select({
-  ios: 'Press Cmd+R to reload,\n' + 'Cmd+D or shake for dev menu',
-  android:
-    'Double tap R on your keyboard to reload,\n' +
-    'Shake or press menu button for dev menu',
-});
-
 type Props = {};
 export default class App extends Component<Props> {
+  sections = [
+    { name: 'Home', icon: homeIcon },
+    { name: 'User', icon: userIcon }
+  ]
+
+  state = {
+    isOpened: false,
+    messageIcon: alertsIcon,
+    messageText: 'RNBanner',
+    pageIndex: 0,
+    showFeedback: false,
+    feedback: undefined
+  }
 
   constructor() {
     super()
-  }
-
-  _requestNotificationPermissions = async () => {
     try {
-      NearITPermissions.requestNotification().then( result => {
-        switch(result) {
-          case 'always':
-            // user granted the permission
-            break;
-          case 'denied':
-            // user denied the permission
-            break;
-        }
-      });
-      //this.props.showMessage(`Notification permission: ${notifPermStatus}`);
-    } catch (err) {
-      //this.props.showMessage(`Error checking notification permission`, err);
-    }
-  };
-
-  _requestLocationPermissions = async () => {
-    try {
-      //this.props.showMessage(`Location permission: ${locPermStatus}`);
-      NearITPermissions.requestLocation().then( result => {
+      NearITPermissions.checkLocation().then( result => {
         switch (result) {
           case 'always':
-            //  optimal place to call NearIT.startRadar()
-            NearIT.startRadar();
-            break;
           case 'when_in_use':
-            //  still a good place to call NearIT.startRadar()
             NearIT.startRadar();
             break;
           default:
             //  DO NOT start NearIT radar!
         }
       });
-    } catch (err) {
-      //this.props.showMessage(`Error checking location permission`, err);
-    }
-  };
-
-  _customTrigger = async () => {
-    console.log("Launching Custom Trigger event");
-    try {
-      await NearIT.triggerEvent("coupon");
-    } catch (err) {
-      console.log("Error while launching custom event", err);
-      //this.props.showMessage(`Custom Trigger launch failed!`);
-    }
-  };
-
-  _checkLocationPermission = async () => {
-    try {
-      NearITPermissions.checkLocation().then( status => {
-        switch (status) {
-          case 'always':
-            // ...
-            break;
-          case 'when_in_use':
-            // ...
-            break;
-          case 'denied':
-            // ...
-            break;
-          case 'never_asked':
-            // ...
-            break;
-        }
-      });
-      //this.props.showMessage(`Location permission: ${locPermStatus}`);
-    } catch (err) {
-      //this.props.showMessage(`Error checking location permission`, err);
-    }
-  };
-
-  _checkNotificationPermission = async () => {
-    try {
-      const notifPermStatus = await NearITPermissions.checkNotification();
-      //this.props.showMessage(`Notification permission: ${notifPermStatus}`);
-      console.log("check location:", locPermStatus)
-    } catch (err) {
-      console.log(err)
-      //this.props.showMessage(`Error checking notification permission`, err);
-    }
-  };
+    } catch (err) { }
+  }
   
   componentWillMount() {
     if (!this._nearItSubscription) {
       this._nearItSubscription = NearIT.addContentsListener(event => {
         console.log('Received a new event from NearIT', { event })
+        const evtType = event[EventContent.type]
+        if (evtType !== Events.PermissionStatus) {
+          const evtContent = event[EventContent.content]
+          const evtTracking = event[EventContent.trackingInfo]
+          switch (evtType) {
+            case Events.SimpleNotification:
+              this._showMessage(
+                evtContent[EventContent.message],
+                simpleNotificationIcon
+              )
+              break
+
+            case Events.Content:
+              this._showMessage(
+                evtContent[EventContent.message],
+                contentNotificationIcon
+              )
+              break
+
+            case Events.Feedback:
+              this._showFeedback(evtContent, evtTracking)
+              break
+
+            case Events.Coupon:
+              this._showMessage(
+                evtContent[EventContent.message],
+                couponNotificationIcon
+              )
+              break
+
+            case Events.CustomJson:
+              this._showMessage(
+                evtContent[EventContent.message],
+                customJsonNotificationIcon
+              )
+              break
+
+            default:
+              this._showMessage('Received a NearIT event', alertsIcon)
+          }
+        }
       });
     }
   }
@@ -127,48 +116,94 @@ export default class App extends Component<Props> {
     }
   }
 
+  _showMessage = (messageText, messageIcon = alertsIcon) => {
+    this.setState({
+      messageIcon,
+      messageText,
+      isOpened: true
+    })
+  }
+
+  _hideMessage = () => {
+    this.setState({
+      isOpened: false
+    })
+  }
+
+  _showFeedback = (feedback, trackingInfo) => {
+    this.setState({
+      showFeedback: true,
+      feedback
+    })
+  }
+
+  _onFeedbackSent = successfull => {
+    console.log('Feedback sent!')
+    this._showMessage(
+      successfull
+        ? 'Feedback sent successfully!'
+        : 'Feedback could not be sent.',
+      successfull ? successIcon : errorIcon
+    )
+
+    this.setState({
+      showFeedback: false,
+      feedback: undefined
+    })
+  }
+
+  _onPageSelected = pageIndex => {
+    this.setState({
+      pageIndex
+    })
+  }
+
   render() {
+    const {
+      isOpened,
+      messageIcon,
+      messageText,
+      pageIndex,
+      showFeedback,
+      feedback
+    } = this.state
+
     return (
-      <View style={styles.container}>
-        
-        <Button
-          label="check location permission"
-          onPress={this._checkLocationPermission}
-          style={styles.actionButton}
-        />
+      <SafeAreaView style={styles.container}>
+        <Header>NearIT Sample</Header>
 
-        <Button
-          label="check notification permission"
-          onPress={this._checkNotificationPermission}
-          style={styles.actionButton}
-        />
+        <Dialog
+          isOpened={isOpened}
+          icon={messageIcon}
+          onPress={this._hideMessage}
+        >
+          {messageText}
+        </Dialog>
 
-        <Text style={styles.welcome}>Welcome to React Native!</Text>
-        <Text style={styles.instructions}>To get started, edit App.js</Text>
-        <Text style={styles.instructions}>{instructions}</Text>
+        {showFeedback && (
+          <FeedbackModal
+            feedback={feedback}
+            onFeedbackSent={this._onFeedbackSent}
+          />
+        )}
 
-        <Button
-          label="request Notification Permission"
-          accessibilityLabel="Open NearIT Permission request for Notifications"
-          onPress={this._requestNotificationPermissions}
-          style={styles.actionButton}
-        />
+        <View style={styles.body}>
+          {pageIndex === 0 && <Home showMessage={this._showMessage} />}
+          {pageIndex === 1 && <User showMessage={this._showMessage} />}
+        </View>
 
-        <Button
-          label="request Location Permission"
-          accessibilityLabel="Open NearIT Permission request for Location"
-          onPress={this._requestLocationPermissions}
-          style={styles.actionButton}
-        />
-
-        <Button
-          label="Custom Trigger"
-          accessibilityLabel="Launch Custom Trigger"
-          onPress={this._customTrigger}
-          style={styles.actionButton}
-        />
-
-      </View>
+        <BottomNavBar>
+          {this.sections.map((v, i) => (
+            <BottomNavBarItem
+              key={i}
+              icon={v.icon}
+              text={v.name}
+              selected={pageIndex === i}
+              onPress={() => this._onPageSelected(i)}
+            />
+          ))}
+        </BottomNavBar>
+      </SafeAreaView>
     );
   }
 }
@@ -176,22 +211,11 @@ export default class App extends Component<Props> {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#F5FCFF',
+    backgroundColor: '#9F92FF'
   },
-  welcome: {
-    fontSize: 20,
-    textAlign: 'center',
-    margin: 10,
-  },
-  instructions: {
-    textAlign: 'center',
-    color: '#333333',
-    marginBottom: 5,
-  },
-  actionButton: {
-    marginTop: 5,
-    marginBottom: 5
+  body: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: '#A69FFF'
   }
 });
