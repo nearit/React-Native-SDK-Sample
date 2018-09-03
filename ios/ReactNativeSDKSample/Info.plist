@@ -36,11 +36,11 @@
 		</dict>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Gimme</string>
+	<string>Location access &apos;Always&apos; is required for Geofences and Beacons to work</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>Gimme</string>
+	<string>Location access &apos;Always&apos; is required for Geofences and Beacons to work</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>Gimme</string>
+	<string>Location access &apos;Always&apos; is required for Geofences and Beacons to work</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>fetch</string>
