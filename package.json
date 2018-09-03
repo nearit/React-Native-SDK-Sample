@@ -1,0 +1,26 @@
+{
+  "name": "ReactNativeSDKSample",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build:ios": "react-native bundle --entry-file='index.js' --bundle-output='./ios/ReactNativeSDKSample/main.jsbundle' --dev=false --platform='ios' --assets-dest='./ios'",
+    "start": "react-native start",
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
+    "test": "jest"
+  },
+  "dependencies": {
+    "react": "16.4.1",
+    "react-native": "0.56.0",
+    "react-native-nearit": "nearit/React-Native-SDK#ios-script"
+  },
+  "devDependencies": {
+    "babel-jest": "23.4.2",
+    "babel-preset-react-native": "^5",
+    "jest": "23.5.0",
+    "react-test-renderer": "16.4.1"
+  },
+  "jest": {
+    "preset": "react-native"
+  }
+}
