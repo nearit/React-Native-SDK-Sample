@@ -28,7 +28,7 @@
             <action android:name="android.intent.action.VIEW" />
             <category android:name="android.intent.category.DEFAULT" />
             <category android:name="android.intent.category.BROWSABLE" />
-            <data android:scheme="nearce6f1aee812d4fb98a6e14fbdefbc546" />
+            <data android:scheme="Your.TestDevice.Scheme" />
           </intent-filter>
         </activity>
     </application>
