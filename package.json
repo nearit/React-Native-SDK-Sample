@@ -10,8 +10,8 @@
     "test": "jest"
   },
   "dependencies": {
-    "react": "16.4.1",
-    "react-native": "0.56.0",
+    "react": "16.8.3",
+    "react-native": "0.59.9",
     "react-native-nearit": "nearit/React-Native-SDK#ios-script"
   },
   "devDependencies": {
