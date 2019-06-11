@@ -15,10 +15,10 @@
     "react-native-nearit": "nearit/React-Native-SDK#ios-script"
   },
   "devDependencies": {
-    "babel-jest": "23.4.2",
+    "babel-jest": "24.8.0",
     "babel-preset-react-native": "^5",
-    "jest": "23.5.0",
-    "react-test-renderer": "16.4.1"
+    "jest": "24.8.0",
+    "react-test-renderer": "16.8.6"
   },
   "jest": {
     "preset": "react-native"
